@@ -53,23 +53,24 @@ auto main(const int argc, char const* const argv[]) -> int
 
 				default:
 				{
-					throw std::logic_error {"logic_error: charlie messed up"};
+					throw std::logic_error {"charlie messed up"};
 				}
 			}
 		}
 	}
 	catch (const std::runtime_error& error)
 	{
-		std::println(std::cerr, "iri: {}", error.what());
+		std::println(std::cerr, "iri: error: {}", error.what());
 		return 1;
 	}
 	catch (const std::logic_error& error)
 	{
-		std::println(std::cerr, "iri: {}", error.what());
+		std::println(std::cerr, "iri: logic_error: {}", error.what());
 		return 1;
 	}
 	catch (...)
 	{
-		return 1;
+		std::println(std::cerr, "iri: error: uncaught exception");
+		throw;
 	}
 }
