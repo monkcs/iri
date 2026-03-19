@@ -44,12 +44,11 @@ namespace iri
 		}
 	}
 
-	inline auto parse(const iri::delimiter symbol) -> std::generator<reference_type, value_type>
+	inline auto parse(const iri::delimiter_pair delimiters) -> std::generator<reference_type, value_type>
 	{
 		for (auto&& line : read_line(std::cin))
 		{
-			auto discard_until = [&line](const std::size_t offset) noexcept { line.remove_prefix(offset); };
-			auto consume_until = [&line] [[nodiscard]] (const std::size_t offset) noexcept
+			auto consume = [&line] [[nodiscard]] (const std::size_t offset) noexcept
 			{
 				const auto prefix = line.substr(0, offset);
 				return line.remove_prefix(offset), prefix;
@@ -57,7 +56,7 @@ namespace iri
 
 			while (not line.empty())
 			{
-				if (const auto opening_offset = line.find(symbol.opening()); opening_offset == std::string_view::npos)
+				if (const auto opening_offset = line.find(delimiters.opening()); opening_offset == std::string_view::npos)
 				{
 					co_yield {type::text, line};
 					break;
@@ -66,19 +65,19 @@ namespace iri
 				{
 					if (opening_offset > 0)
 					{
-						co_yield {type::text, consume_until(opening_offset)};
+						co_yield {type::text, consume(opening_offset)};
 					}
 
-					discard_until(symbol.opening().size());
+					line.remove_prefix(delimiters.opening().size());
 
-					if (const auto closing_offset = line.find(symbol.closing()); closing_offset == std::string_view::npos)
+					if (const auto closing_offset = line.find(delimiters.closing()); closing_offset == std::string_view::npos)
 					{
 						throw std::runtime_error {"missing end delimiter symbol"};
 					}
 					else
 					{
-						co_yield {type::directive, consume_until(closing_offset)};
-						discard_until(symbol.closing().size());
+						co_yield {type::directive, consume(closing_offset)};
+						line.remove_prefix(delimiters.closing().size());
 					}
 				}
 			}

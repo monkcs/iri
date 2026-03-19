@@ -20,7 +20,7 @@ auto main(const int argc, char const* const argv[]) -> int
 	{
 		const utilities::arguments arguments {argc, argv};
 
-		const auto media_type = arguments.option<iri::delimiter, 1>("media-type");
+		const auto media_type = arguments.option<iri::delimiter_pair, 1>("media-type");
 		const auto included_files = arguments.option<std::filesystem::path>("include");
 
 		for (const auto&& [content_type, content] : iri::parse(media_type))
